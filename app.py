@@ -1,7 +1,22 @@
 import streamlit as st
 import pandas as pd
-from db_manager import insert_claims, search_claim, search_customer
+import plotly.express as px
+from db_manager import (
+    insert_claims,
+    search_claim,
+    search_customer,
+    total_claims,
+    approved_claims,
+    rejected_claims,
+    total_claim_loss,
+    approval_rate,
+    monthly_claims,
+    top_customers,
+    get_months,
+    top_defects
+)
 from pdf_generator import generate_pdf
+from claim_pdf import generate_claim_pdf
 # -----------------------------
 # Page Configuration
 # -----------------------------
@@ -32,7 +47,7 @@ page = st.sidebar.radio(
 # Home Page
 # -----------------------------
 if page == "🏠 Home":
-    st.title("🚗 Tyre Claim Management System")
+    st.title("🛞 Tyre Claim Management System")
     st.write(
         """
         Welcome to the Tyre Claim Management System.
@@ -119,10 +134,18 @@ elif page == "🔍 Search Claim":
                 st.write(f"**Docket Number:** {claim[2]}")
                 st.write(f"**Customer Name:** {claim[8]}")
                 st.write(f"**Material:** {claim[10]}")
+                st.write(f"**Defect Description:** {claim[14]}")
+                st.write(f"**Serial Number:** {claim[11]}")
             with col2:
-                    st.write(f"**Claim Loss:** ₹{claim[17]:,.2f}")
+                    claim_loss = claim[17]
+                    gst = claim_loss * 0.18
+                    total_payable = claim_loss + gst
+
+                    st.write(f"**Claim Loss:** ₹{claim_loss:,.2f}")
+                    st.write(f"**GST (18%):** ₹{gst:,.2f}")
+                    st.write(f"**Total Payable:** ₹{total_payable:,.2f}")
                     st.write(f"**Wear %:** {claim[18]}%")
-                    st.write(f"**Invoice No:** {claim[19]}")
+                    #st.write(f"**Invoice No:** {claim[20]}")
             # Claim Status
             status = claim[12].strip().upper()
             if "ACCEPT" in status:
@@ -133,6 +156,15 @@ elif page == "🔍 Search Claim":
                 st.warning(f"Status : {status}")
         else:
             st.error("No Claim Found")
+        pdf_file = generate_claim_pdf(claim)
+
+        with open(pdf_file, "rb") as file:
+              st.download_button(
+               label="📄 Download Claim PDF",
+               data=file,
+               file_name=pdf_file,
+               mime="application/pdf"
+               )
 
 # -----------------------------
 # Customer Claim History
@@ -176,19 +208,25 @@ elif page == "📋 Customer Claim History":
             ]
               
             history_df = pd.DataFrame(claims, columns=columns)
+
+# Calculate Total Payable first
+            history_df["Claim Amount"] = (history_df["Claim Loss"] * 1.18).round(2)
+
+# Now select only the required columns
             history_df = history_df[
-                [
-                   "Docket Number",
-                   "Docket Date",
-                   "Customer Name",
-                   "Material Description",
-                   "Serial Number",
-                   "Disposition",
-                   "Defect Description",
-                   "Claim Loss",
-                   "Wear %",
-                ]
-            ] 
+         [
+         "Docket Number",
+         "Docket Date",
+         "Customer Name",
+         "Material Description",
+         "Serial Number",
+         "Disposition",
+         "Defect Description",
+         "Wear %",
+         "Claim Amount"
+          ]
+     ]
+
             st.dataframe(history_df, use_container_width=True)
             data = [history_df.columns.tolist()] + history_df.values.tolist()
             pdf_file = generate_pdf(data, customer_name)
@@ -207,10 +245,132 @@ elif page == "📋 Customer Claim History":
 # -----------------------------
 # Dashboard
 # -----------------------------
+    
 elif page == "📊 Dashboard":
-    st.header("📊 Dashboard")
-    st.info("Coming Soon...")
 
+    st.header("📊 Dashboard")
+    months = ["All"] + get_months()
+    
+    selected_month = st.selectbox(
+        "📅 Select Month",
+        months
+         )
+    
+
+    # First Row
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.metric("Total Claims", total_claims(selected_month))
+
+    with col2:
+        st.metric("Approved Claims", approved_claims(selected_month))
+
+    with col3:
+        st.metric("Rejected Claims", rejected_claims(selected_month))
+    
+        
+
+# Second Row
+    col4, col5 = st.columns(2)
+
+    with col4:
+        st.metric(
+        "Total Claim Loss",
+        f"₹{total_claim_loss(selected_month):,.2f}"
+    )
+
+    with col5:
+        st.metric(
+        "Approval Rate",
+        f"{approval_rate(selected_month)}%"
+    )
+
+    st.subheader("📈 Monthly Claims Trend")
+
+    chart_data = monthly_claims()
+
+    chart_df = pd.DataFrame(
+    chart_data,
+    columns=["Month", "Claims"]
+      )
+
+    fig = px.bar(
+    chart_df,
+    x="Month",
+    y="Claims",
+    text="Claims",
+    title=None
+      )
+
+    fig.update_traces(textposition="outside")
+
+    fig.update_layout(
+    xaxis_title="Month",
+    yaxis_title="Number of Claims",
+    height=320
+      )
+
+    st.plotly_chart(fig, use_container_width=True)
+    st.subheader("🏆 Top 10 Customers by Claims")
+
+    customer_data = top_customers(selected_month)
+    # st.write(customer_data)
+    customer_df = pd.DataFrame(
+    customer_data,
+    columns=["Customer", "Claims"]
+    )
+
+    fig = px.bar(
+    customer_df,
+    x="Claims",
+    y="Customer",
+    orientation="h",
+    text="Claims",
+    title=None
+     )
+
+    fig.update_traces(textposition="outside")
+
+    fig.update_layout(
+    yaxis=dict(categoryorder="total ascending"),
+    height=450,
+    xaxis_title="Number of Claims",
+    yaxis_title=""
+   )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.subheader("🔧 Top 10 Defect Types")
+
+    defect_data = top_defects(selected_month)
+
+    defect_df = pd.DataFrame(
+    defect_data,
+    columns=["Defect", "Claims"]
+    )
+
+    fig = px.bar(
+    defect_df,
+    x="Claims",
+    y="Defect",
+    orientation="h",
+    text="Claims",
+    title=None
+     )
+
+    fig.update_traces(textposition="outside")
+
+    fig.update_layout(
+    yaxis=dict(categoryorder="total ascending"),
+    height=450,
+    xaxis_title="Number of Claims",
+    yaxis_title=""
+      )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+   
 # -----------------------------
 # About
 # -----------------------------

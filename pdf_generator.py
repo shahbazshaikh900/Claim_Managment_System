@@ -48,8 +48,8 @@ def generate_pdf(data, customer_name):
         100,  # Serial Number
         60,   # Status
         170,  # Defect Description
-        55,   # Claim Loss
-        45    # Wear %
+        45,   # Wear %
+        70,   # Claim Loss
       ]
      )
 

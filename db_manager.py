@@ -133,3 +133,204 @@ def search_customer(customer_name):
     connection.close()
 
     return claims
+
+def total_claims(month ="All"):
+
+    connection = sqlite3.connect("claims.db")
+    cursor = connection.cursor()
+
+    if month == "All":
+        cursor.execute("SELECT COUNT(*) FROM claims")
+    else:
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM claims
+            WHERE substr(claim_date,1,7)=?
+        """, (month,))
+
+    total = cursor.fetchone()[0]
+
+    connection.close()
+
+    return total
+
+def approved_claims(month ="All"):
+
+    connection = sqlite3.connect("claims.db")
+    cursor = connection.cursor()
+
+    if month == "All":
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM claims
+            WHERE UPPER(disposition) LIKE '%ACCEPT%'
+        """)
+    else:
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM claims
+            WHERE UPPER(disposition) LIKE '%ACCEPT%'
+            AND substr(claim_date,1,7)=?
+        """, (month,))
+
+    total = cursor.fetchone()[0]
+
+    connection.close()
+
+    return total
+
+def rejected_claims(month ="All"):
+
+    connection = sqlite3.connect("claims.db")
+    cursor = connection.cursor()
+
+    if month == "All":
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM claims
+            WHERE UPPER(disposition) LIKE '%REJECT%'
+        """)
+    else:
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM claims
+            WHERE UPPER(disposition) LIKE '%REJECT%'
+            AND substr(claim_date,1,7)=?
+        """, (month,))
+
+    total = cursor.fetchone()[0]
+
+    connection.close()
+
+    return total
+
+def total_claim_loss(month ="All"):
+
+    connection = sqlite3.connect("claims.db")
+    cursor = connection.cursor()
+
+    if month == "All":
+        cursor.execute("""
+            SELECT SUM(claim_loss)
+            FROM claims
+        """)
+    else:
+        cursor.execute("""
+            SELECT SUM(claim_loss)
+            FROM claims
+            WHERE substr(claim_date,1,7)=?
+        """, (month,))
+
+    total = cursor.fetchone()[0]
+
+    connection.close()
+
+    return total if total else 0
+
+
+def approval_rate(month ="All"):
+
+    total = total_claims(month)
+    approved = approved_claims(month)
+
+    if total == 0:
+        return 0
+
+    return round((approved / total) * 100, 2)
+
+def monthly_claims():
+
+    connection = sqlite3.connect("claims.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            substr(claim_date, 1, 7) AS month,
+            COUNT(*)
+        FROM claims
+        GROUP BY month
+        ORDER BY month
+    """)
+
+    data = cursor.fetchall()
+
+    connection.close()
+
+    return data
+def top_customers(month="All"):
+
+    connection = sqlite3.connect("claims.db")
+    cursor = connection.cursor()
+
+    if month == "All":
+        cursor.execute("""
+            SELECT customer_name,
+                   COUNT(*) AS total_claims
+            FROM claims
+            GROUP BY customer_name
+            ORDER BY total_claims DESC
+            LIMIT 10
+        """)
+    else:
+        cursor.execute("""
+            SELECT customer_name,
+                   COUNT(*) AS total_claims
+            FROM claims
+            WHERE substr(claim_date,1,7)=?
+            GROUP BY customer_name
+            ORDER BY total_claims DESC
+            LIMIT 10
+        """, (month,))
+
+    data = cursor.fetchall()
+
+    connection.close()
+
+    return data
+
+def get_months():
+
+    connection = sqlite3.connect("claims.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT DISTINCT substr(claim_date,1,7)
+        FROM claims
+        ORDER BY 1
+    """)
+
+    months = [row[0] for row in cursor.fetchall()]
+
+    connection.close()
+
+    return months
+def top_defects(month="All"):
+
+    connection = sqlite3.connect("claims.db")
+    cursor = connection.cursor()
+
+    if month == "All":
+        cursor.execute("""
+            SELECT defect_description,
+                   COUNT(*) AS total_claims
+            FROM claims
+            GROUP BY defect_description
+            ORDER BY total_claims DESC
+            LIMIT 10
+        """)
+    else:
+        cursor.execute("""
+            SELECT defect_description,
+                   COUNT(*) AS total_claims
+            FROM claims
+            WHERE substr(claim_date,1,7)=?
+            GROUP BY defect_description
+            ORDER BY total_claims DESC
+            LIMIT 10
+        """, (month,))
+
+    data = cursor.fetchall()
+
+    connection.close()
+
+    return data
