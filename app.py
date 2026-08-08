@@ -549,49 +549,26 @@ elif page == "Dashboard":
     columns=["Defect", "Claims"]
     )
 
-    st.markdown("""
-<div style="margin-top:8px;">
+    fig = px.bar(
+    defect_df,
+    x="Claims",
+    y="Defect",
+    orientation="h",
+    text="Claims",
+    title=None,
+    color_discrete_sequence=["#0053AE"]
+   )
 
-    <h3 style="
-        font-size:20px;
-        margin-bottom:6px;
-        color:#111;">
-        Customer Features
-    </h3>
-
-    <div style="
-        width:70px;
-        height:2px;
-        background:#F58220;
-        margin-bottom:14px;
-        border-radius:2px;">
-    </div>
-
-    <div style="font-size:15px; margin-bottom:10px;">
-        <b style="color:#0053AE;">✓</b>
-        <b>Search Claim by Docket Number</b>
-    </div>
-
-    <div style="font-size:15px; margin-bottom:10px;">
-        <b style="color:#0053AE;">✓</b>
-        <b>View Customer Claim History</b>
-    </div>
-
-    <div style="font-size:15px;">
-        <b style="color:#0053AE;">✓</b>
-        <b>Download Professional PDF Reports</b>
-    </div>
-
-</div>
-""", unsafe_allow_html=True)
     fig.update_traces(textposition="outside")
 
     fig.update_layout(
     yaxis=dict(categoryorder="total ascending"),
     height=450,
     xaxis_title="Number of Claims",
-    yaxis_title=""
-      )
+    yaxis_title="",
+    plot_bgcolor="white",
+    paper_bgcolor="white"
+    )
 
     st.plotly_chart(fig, use_container_width=True)
 
