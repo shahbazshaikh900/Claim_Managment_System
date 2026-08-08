@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+
+uploads/
+
+claims.db
+
+*.pdf
+
+.streamlit/secrets.toml

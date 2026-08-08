@@ -15,6 +15,7 @@ from db_manager import (
     get_months,
     top_defects
 )
+
 from pdf_generator import generate_pdf
 from claim_pdf import generate_claim_pdf
 # -----------------------------
@@ -25,47 +26,238 @@ st.set_page_config(
     page_icon="🚗",
     layout="wide"
 )
+st.markdown("""
+<style>
+
+/* Move entire page content upward */
+.block-container{
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+}
+
+/* Reduce gap below page title */
+h1{
+    margin-bottom:0.2rem !important;
+}
+
+/* Reduce paragraph spacing */
+p{
+    margin-bottom:0.5rem !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+
+if "page" not in st.session_state:
+    st.session_state.page = "Home"
+with st.sidebar:
+
+    st.sidebar.image("assets/ceat_logo.png", width=200)
+    st.sidebar.markdown(
+      """
+      <p style="
+       text-align:center;
+       color:#0B5CAD;
+      font-size:19px;
+      font-weight:bold;
+      margin-top:-12px;
+      margin-bottom:20px;">
+      It helps. It lasts.
+     </p>
+       """,
+       unsafe_allow_html=True
+        )
+
+    st.sidebar.markdown("""
+    <h2 style="
+    color:#0B5CAD;
+    text-align:left;
+    margin-bottom:0;">
+    Navigation
+     </h2>
+       """, unsafe_allow_html=True)
+    
+    st.sidebar.markdown("""
+     <div style="
+     height:3px;
+      width:70px;
+      background:#0B5CAD;
+      margin-bottom:18px;
+      border-radius:3px;">
+     </div>
+     """, unsafe_allow_html=True)
+
+    
+    if st.button("🏠 Home", use_container_width=True):
+        st.session_state.page = "Home"
+    
+
+    if st.button("📤 Upload Claim Report", use_container_width=True):
+        st.session_state.page = "Upload Claim Report"
+
+    if st.button("🔍 Search Claim", use_container_width=True):
+        st.session_state.page = "Search Claim"
+
+    if st.button("📋 Customer Claim History", use_container_width=True):
+        st.session_state.page = "Customer Claim History"
+
+    if st.button("📊 Dashboard", use_container_width=True):
+        st.session_state.page = "Dashboard"
+
+    if st.button("ℹ About", use_container_width=True):
+        st.session_state.page = "About"
+
+page = st.session_state.page
+
+
+
+st.markdown("""
+<style>
+
+/* Sidebar width */
+section[data-testid="stSidebar"]{
+    width: 260px !important;
+}
+
+/* Sidebar background */
+section[data-testid="stSidebar"]{
+    background-color:#F8F9FA;
+}
+
+/* Remove top spacing */
+section[data-testid="stSidebar"] > div{
+    padding-top:2px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+
+
 
 # -----------------------------
 # Sidebar
 # -----------------------------
-st.sidebar.title("Navigation")
+st.markdown("""
+<style>
 
-page = st.sidebar.radio(
-    "Select a Page",
-    [
-        "🏠 Home",
-        "📤 Upload Claim Report",
-        "🔍 Search Claim",
-        "📋 Customer Claim History",
-        "📊 Dashboard",
-        "ℹ About"
-    ]
-)
+/* Menu Buttons */
+.stButton > button{
+    width:100%;
+    background:white;
+    color:#0B5CAD;
+    font-size:17px;
+    font-weight:600;
+    text-align:left;
+    border:none;
+    border-radius:10px;
+    padding:12px 16px;
+    transition:0.3s;
+}
 
+/* Hover */
+.stButton > button:hover{
+    background:#EEF4FF;
+    color:#0B5CAD;
+}
+
+/* Click */
+.stButton > button:focus{
+    background:#EEF4FF !important;
+    color:#0B5CAD !important;
+    border-left:5px solid #0B5CAD !important;
+    outline:none;
+}
+
+</style>
+""", unsafe_allow_html=True)
 # -----------------------------
 # Home Page
 # -----------------------------
-if page == "🏠 Home":
-    st.title("🛞 Tyre Claim Management System")
-    st.write(
+if page == "Home":
+    st.markdown(
         """
-        Welcome to the Tyre Claim Management System.
+        <h1 style='margin-bottom: 0px;'>
+            🛞 
+            <span style='color: #0053AE;'>C</span><span style='color: #F5822D;'>E</span><span style='color: #0053AE;'>A</span><span style='color: #0053AE;'>T</span> 
+            Claim Management System
+        </h1>
+        """, 
+        unsafe_allow_html=True
+          )
+    st.markdown("""
+    <div style="
+    display:flex;
+     width:100%;
+    height:2px;
+    margin-top:0px;
+    margin-bottom:5px;
+     ">
+    <div style="width:55%;background:#0053AE;"></div>
+    <div style="width:45%;background:#F58220;"></div>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown(
+          """
+          <div style="font-size:18px;">
+         Welcome to the Tyre Claim Management System.
+         </div>
 
-        This application helps automate the weekly tyre claim process.
+         <div style="font-size:18px; color:#444;">
+          Automating tyre claim processing with analytics and PDF reporting.
+        </div>
+        """,unsafe_allow_html=True )
+    st.markdown("""
+         <h2 style="
+          margin-bottom:0px;
+          font-size:20px;
+          font-weight:650;
+           color:#111;">
+          Features
+              </h2>
 
-        Features:
-        - Upload weekly claim reports
-        - Search claims using Docket Number
-        - View customer claim details
-        - Analytics Dashboard (Coming Soon)
-        """
-    )
+         <div style="
+          width:80px;
+          height:2px;
+          background:#F58220;
+          border-radius:5px;
+         margin-bottom:10px;">
+         </div>
+            """, unsafe_allow_html=True)
+    st.markdown("✅ Upload Weekly Claim Reports")
+    st.markdown("🔍 Search Claim by Docket Number")
+    st.markdown("📋 Customer Claim History")
+    st.markdown("📊 Interactive Analytics Dashboard")
+    st.markdown("📄 Professional PDF Reports")
+    
+ # ---------------- FOOTER ---------------- 
+    
+#     st.markdown("""
+#      <div style="margin-top:58px;">
+#         <div style="
+#             width:320px;
+#             height:2px;
+#             background:#F58220;
+#             margin-left:auto;
+#             border-radius:2px;">
+#         </div>
+#         <div style="text-align:right; margin-top:1px;">
+#             <div style="font-size:12px; font-weight:700;">
+#                 Version 1.0
+#             </div>
+#             <div style="font-size:12px;">
+#                 Developed by <b>Mohammad Shahbaz Shaikh</b>
+#             </div>
+#         </div>
+#      </div> """, unsafe_allow_html=True)
 
 # -----------------------------
 # Upload Page
 # -----------------------------
-elif page == "📤 Upload Claim Report":
+elif page == "Upload Claim Report":
     st.header("📤 Upload Weekly Claim Report")
     uploaded_file = st.file_uploader(
         "Choose Claim Report",
@@ -121,8 +313,8 @@ elif page == "📤 Upload Claim Report":
 # -----------------------------
 # Search Page
 # -----------------------------
-elif page == "🔍 Search Claim":
-    st.header("🔍 Search Claim")
+elif page == "Search Claim":
+    st.header(" Search Claim")
     docket_number = st.text_input("Enter Docket Number")
     if st.button("Search"):
         claim = search_claim(docket_number)
@@ -169,7 +361,7 @@ elif page == "🔍 Search Claim":
 # -----------------------------
 # Customer Claim History
 # -----------------------------
-elif page == "📋 Customer Claim History":
+elif page == "Customer Claim History":
 
     st.header("📋 Customer Claim History")
 
@@ -246,7 +438,7 @@ elif page == "📋 Customer Claim History":
 # Dashboard
 # -----------------------------
     
-elif page == "📊 Dashboard":
+elif page == "Dashboard":
 
     st.header("📊 Dashboard")
     months = ["All"] + get_months()
@@ -300,16 +492,20 @@ elif page == "📊 Dashboard":
     x="Month",
     y="Claims",
     text="Claims",
-    title=None
-      )
+    title=None,
+    color_discrete_sequence=["#0053AE"]
+   )
+
 
     fig.update_traces(textposition="outside")
 
     fig.update_layout(
     xaxis_title="Month",
     yaxis_title="Number of Claims",
-    height=320
-      )
+    height=320,
+    plot_bgcolor="white",
+    paper_bgcolor="white"
+    )
 
     st.plotly_chart(fig, use_container_width=True)
     st.subheader("🏆 Top 10 Customers by Claims")
@@ -327,8 +523,9 @@ elif page == "📊 Dashboard":
     y="Customer",
     orientation="h",
     text="Claims",
-    title=None
-     )
+    title=None,
+    color_discrete_sequence=["#F58220"]
+   )
 
     fig.update_traces(textposition="outside")
 
@@ -336,7 +533,9 @@ elif page == "📊 Dashboard":
     yaxis=dict(categoryorder="total ascending"),
     height=450,
     xaxis_title="Number of Claims",
-    yaxis_title=""
+    yaxis_title="",
+    plot_bgcolor="white",
+    paper_bgcolor="white"
    )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -350,15 +549,41 @@ elif page == "📊 Dashboard":
     columns=["Defect", "Claims"]
     )
 
-    fig = px.bar(
-    defect_df,
-    x="Claims",
-    y="Defect",
-    orientation="h",
-    text="Claims",
-    title=None
-     )
+    st.markdown("""
+<div style="margin-top:8px;">
 
+    <h3 style="
+        font-size:20px;
+        margin-bottom:6px;
+        color:#111;">
+        Customer Features
+    </h3>
+
+    <div style="
+        width:70px;
+        height:2px;
+        background:#F58220;
+        margin-bottom:14px;
+        border-radius:2px;">
+    </div>
+
+    <div style="font-size:15px; margin-bottom:10px;">
+        <b style="color:#0053AE;">✓</b>
+        <b>Search Claim by Docket Number</b>
+    </div>
+
+    <div style="font-size:15px; margin-bottom:10px;">
+        <b style="color:#0053AE;">✓</b>
+        <b>View Customer Claim History</b>
+    </div>
+
+    <div style="font-size:15px;">
+        <b style="color:#0053AE;">✓</b>
+        <b>Download Professional PDF Reports</b>
+    </div>
+
+</div>
+""", unsafe_allow_html=True)
     fig.update_traces(textposition="outside")
 
     fig.update_layout(
@@ -374,7 +599,7 @@ elif page == "📊 Dashboard":
 # -----------------------------
 # About
 # -----------------------------
-elif page == "ℹ About":
+elif page == "About":
 
     st.header("About Project")
 
@@ -388,5 +613,36 @@ elif page == "ℹ About":
         - SQLite
         """
     )
-    
+# -----------------------------
+# Global Footer
+# -----------------------------
+
+st.markdown("""
+<div style="
+    position: fixed;
+    bottom: 20px;
+    right: 35px;
+    width: 320px;
+    text-align: right;
+    z-index: 999;">
+
+<div style="
+        height:2px;
+        background:#F58220;
+        margin-bottom:5px;
+        border-radius:2px;">
+</div>
+
+<div style="
+        font-size:12px;
+        font-weight:700;">
+        Version 1.0
+</div>
+
+<div style="font-size:12px;">
+        Developed by <b>Mohammad Shahbaz Shaikh</b>
+</div>
+
+</div>
+""", unsafe_allow_html=True)
 
